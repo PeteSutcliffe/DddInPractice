@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using DddInPractice.Logic.Atms;
+using DddInPractice.Logic.Common;
 using DddInPractice.Logic.Management;
 using DddInPractice.Logic.SnackMachines;
 using DddInPractice.UI.Atms;
@@ -14,6 +15,7 @@ namespace DddInPractice.UI.Management
         private readonly ISnackMachineRepository _snackMachineRepository;
         private readonly IAtmRepository _atmRepository;
         private readonly IHeadOfficeRepository _headOfficeRepository;
+        private readonly EventDispatcher _eventDispatcher;
 
         public HeadOffice HeadOffice { get; }
         public IReadOnlyList<SnackMachineDto> SnackMachines { get; private set; }
@@ -23,11 +25,15 @@ namespace DddInPractice.UI.Management
         public Command<AtmDto> ShowAtmCommand { get; private set; }
         public Command<AtmDto> LoadCashToAtmCommand { get; private set; }
 
-        public DashboardViewModel(ISnackMachineRepository snackMachineRepository, IAtmRepository atmRepository, IHeadOfficeRepository headOfficeRepository)
+        public DashboardViewModel(ISnackMachineRepository snackMachineRepository, 
+            IAtmRepository atmRepository, 
+            IHeadOfficeRepository headOfficeRepository,
+            EventDispatcher eventDispatcher)
         {
             _snackMachineRepository = snackMachineRepository;
             _atmRepository = atmRepository;
             _headOfficeRepository = headOfficeRepository;
+            _eventDispatcher = eventDispatcher;
             HeadOffice = HeadOfficeInstance.Instance;
 
             RefreshAll();
@@ -53,7 +59,8 @@ namespace DddInPractice.UI.Management
             HeadOffice.LoadCashToAtm(atm);
             _atmRepository.Save(atm);
             _headOfficeRepository.Save(HeadOffice);
-
+            _eventDispatcher.DispatchPendingFor(atm);
+            _eventDispatcher.DispatchPendingFor(HeadOffice);
             RefreshAll();
         }
 
@@ -64,7 +71,7 @@ namespace DddInPractice.UI.Management
             if (atm == null)
                 return;
 
-            _dialogService.ShowDialog(new AtmViewModel(atm, _atmRepository));
+            _dialogService.ShowDialog(new AtmViewModel(atm, _atmRepository, _eventDispatcher));
             RefreshAll();
         }
 
@@ -84,6 +91,9 @@ namespace DddInPractice.UI.Management
             _snackMachineRepository.Save(snackMachine);
             _headOfficeRepository.Save(HeadOffice);
 
+            _eventDispatcher.DispatchPendingFor(snackMachine);
+            _eventDispatcher.DispatchPendingFor(HeadOffice);
+
             RefreshAll();
         }
 
@@ -97,7 +107,7 @@ namespace DddInPractice.UI.Management
                 return;
             }
 
-            _dialogService.ShowDialog(new SnackMachineViewModel(snackMachine, _snackMachineRepository));
+            _dialogService.ShowDialog(new SnackMachineViewModel(snackMachine, _snackMachineRepository, _eventDispatcher));
             RefreshAll();
         }
 

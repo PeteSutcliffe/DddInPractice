@@ -5,14 +5,18 @@ namespace DddInPractice.Logic.Management
 {
     public class BalanceChangedEventHandler : IHandler<BalanceChangedEvent>
     {
+        private readonly IHeadOfficeRepository _repository;
+
+        public BalanceChangedEventHandler(IHeadOfficeRepository repository)
+        {
+            _repository = repository;
+        }
+
         public void Handle(BalanceChangedEvent domainEvent)
         {
-            //todo: injection
-
-            //var repository = new HeadOfficeRepository();
-            //HeadOffice headOffice = HeadOfficeInstance.Instance;
-            //headOffice.ChangeBalance(domainEvent.Delta);
-            //repository.Save(headOffice);
+            var headOffice = HeadOfficeInstance.Instance;
+            headOffice.ChangeBalance(domainEvent.Delta);
+            _repository.Save(headOffice);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DddInPractice.Logic.Atms;
+using DddInPractice.Logic.Common;
 using DddInPractice.Logic.SharedKernel;
 using DddInPractice.UI.Common;
 
@@ -8,6 +9,7 @@ namespace DddInPractice.UI.Atms
     {
         private readonly PaymentGateway _paymentGateway;
         private readonly IAtmRepository _repository;
+        private readonly EventDispatcher _eventDispatcher;
         private readonly Atm _atm;
 
         private string _message;
@@ -26,10 +28,11 @@ namespace DddInPractice.UI.Atms
         public string MoneyCharged => _atm.MoneyCharged.ToString("C2");
         public Command<decimal> TakeMoneyCommand { get; private set; }
 
-        public AtmViewModel(Atm atm, IAtmRepository repository)
+        public AtmViewModel(Atm atm, IAtmRepository repository, EventDispatcher eventDispatcher)
         {
             _atm = atm;
             _repository = repository;
+            _eventDispatcher = eventDispatcher;
             _paymentGateway = new PaymentGateway();
 
             TakeMoneyCommand = new Command<decimal>(x => x > 0, TakeMoney);
@@ -48,7 +51,7 @@ namespace DddInPractice.UI.Atms
             _paymentGateway.ChargePayment(amountWithCommission);
             _atm.TakeMoney(amount);
             _repository.Save(_atm);
-
+            _eventDispatcher.DispatchPendingFor(_atm);
             NotifyClient("You have taken " + amount.ToString("C2"));
         }
 

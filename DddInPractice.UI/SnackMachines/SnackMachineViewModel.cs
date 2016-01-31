@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DddInPractice.Logic.Common;
 using DddInPractice.Logic.SharedKernel;
 using DddInPractice.Logic.SnackMachines;
 using DddInPractice.UI.Common;
@@ -10,6 +11,7 @@ namespace DddInPractice.UI.SnackMachines
     {
         private readonly SnackMachine _snackMachine;
         private readonly ISnackMachineRepository _repository;
+        private readonly EventDispatcher _eventDispatcher;
 
         public override string Caption => "Snack Machine";
         public string MoneyInTransaction => _snackMachine.MoneyInTransaction.ToString();
@@ -45,10 +47,11 @@ namespace DddInPractice.UI.SnackMachines
         public Command ReturnMoneyCommand { get; private set; }
         public Command<string> BuySnackCommand { get; private set; }
 
-        public SnackMachineViewModel(SnackMachine snackMachine, ISnackMachineRepository repository)
+        public SnackMachineViewModel(SnackMachine snackMachine, ISnackMachineRepository repository, EventDispatcher eventDispatcher)
         {
             _snackMachine = snackMachine;
             _repository = repository;
+            _eventDispatcher = eventDispatcher;
 
             InsertCentCommand = new Command(() => InsertMoney(Money.Cent));
             InsertTenCentCommand = new Command(() => InsertMoney(Money.TenCent));
@@ -73,6 +76,7 @@ namespace DddInPractice.UI.SnackMachines
 
             _snackMachine.BuySnack(position);
             _repository.Save(_snackMachine);
+            _eventDispatcher.DispatchPendingFor(_snackMachine);
             NotifyClient("You have bought a snack");
         }
 

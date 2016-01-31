@@ -50,8 +50,10 @@
     <Compile Include="Common\DomainEvents_old.cs" />
     <Compile Include="Common\DomainEvents.cs" />
     <Compile Include="Common\Entity.cs" />
+    <Compile Include="Common\EventDispatcher.cs" />
     <Compile Include="Common\IDomainEvent.cs" />
     <Compile Include="Common\IHandler.cs" />
+    <Compile Include="Common\IMessageHandlerFactory.cs" />
     <Compile Include="Management\BalanceChangedEventHandler.cs" />
     <Compile Include="Management\HeadOffice.cs" />
     <Compile Include="Management\HeadOfficeInstance.cs" />

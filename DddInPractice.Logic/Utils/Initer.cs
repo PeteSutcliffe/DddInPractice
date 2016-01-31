@@ -1,5 +1,4 @@
 ﻿using DddInPractice.Logic.Atms;
-using DddInPractice.Logic.Common;
 using DddInPractice.Logic.Management;
 using DddInPractice.Logic.SharedKernel;
 using DddInPractice.Logic.SnackMachines;
@@ -17,7 +16,6 @@ namespace DddInPractice.Logic.Utils
             SetupAtm(atmRepository);
 
             HeadOfficeInstance.Init(headOfficeRepository);
-            DomainEvents.Init();
         }
 
         private static void SetupAtm(IAtmRepository atmRepository)
